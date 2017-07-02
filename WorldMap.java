@@ -2,16 +2,21 @@ import java.util.*;
 
 public class WorldMap {
     boolean[][] map;
-    int n, m;
+    int map_rows, map_columns;
+    Queue<Cell> q;
+    
+    WorldMap(){
+        q = new LinkedList<>();
+    }
 
     public int countIslands(int rows, int columns, boolean[][] a) {
         int count = 0, i, j;
         map = a;
-        n = rows;
-        m = columns;
+        map_rows = rows;
+        map_columns = columns;
 
-        for(i = 0; i < n; i++)
-            for(j = 0; j < m; j++)
+        for(i = 0; i < map_rows; i++)
+            for(j = 0; j < map_columns; j++)
                 if(map[i][j]) {
                     count ++;
                     fill(i, j);
@@ -20,20 +25,20 @@ public class WorldMap {
     }
 
     void fill(int i, int j) {
-        Queue<Cell> q = new LinkedList<>();
         q.add(new Cell(i, j));
 
         while(!q.isEmpty()) {
             Cell elem = q.poll();
 
-
-
-            i = elem.i;
-            j = elem.j;
+            i = elem.row;
+            j = elem.col;
 
             map[i][j] = false;
 
-            if(i - 1 >= 0 && map[i - 1][j]) {
+            for(Direction dir : Direction.values())
+              addNewDir(elem, dir);
+
+           /* if(i - 1 >= 0 && map[i - 1][j]) {
                 q.add(new Cell(i - 1, j));
             }
 
@@ -47,31 +52,42 @@ public class WorldMap {
 
             if(j + 1 < m && map[i][j+1]) {
                 q.add(new Cell(i, j+1));
-            }
+            } */
         }
+    }
+
+    void addNewDir(Cell elem, Direction dir){
+      int new_row = elem.row + dir.row;
+      int new_col = elem.col + dir.col;
+
+      if(new_row < 0 || new_row >= map_rows) 
+        return;
+      if(new_col < 0 || new_col >= map_columns)
+        return;
+      
+      if(!map[new_row][new_col])
+        return;
+
+      q.add(new Cell(new_row, new_col));
     }
 }
 
 class Cell {
-    public int i, j;
+    public int row, col;
 
     Cell(int i, int j) {
-        this.i = i;
-        this.j = j;
+        row = i;
+        col = j;
     }
+}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+enum Direction {
+        TOP(-1, 0), DOWN(1, 0), LEFT(0, -1), RIGHT(0, 1);
+        int row;
+        int col;
+
+        Direction(int row, int col) {
+            this.row = row;
+            this.col = col;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Cell other = (Cell) obj;
-        if (this.i != other.i || this.j != other.j) {
-            return false;
-        }
-        return true;
-    }
 }
